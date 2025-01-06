@@ -7,12 +7,17 @@ async function render() {
   const file = await renderVideo({
     projectFile: './src/project.tsx',
     settings: {
+      outFile: 'test.mp4',
       logProgress: true,
       ffmpeg: {
         ffmpegLogLevel: 'error',
         // https://docs.re.video/api/renderer/renderVideo
         ffmpegPath: './ffmpeg/bin/ffmpeg',
+        ffprobePath: './ffmpeg/bin/ffprobe',
       },
+      puppeteer: {
+        args: ['--no-sandbox'],
+      }
     },
     
   });
