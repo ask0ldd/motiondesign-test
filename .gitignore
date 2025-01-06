@@ -3,6 +3,7 @@ node_modules
 output
 dist
 public
+ffmpeg
 
 # Editor directories and files
 .vscode/*

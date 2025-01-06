@@ -11,7 +11,7 @@ async function render() {
       ffmpeg: {
         ffmpegLogLevel: 'error',
         // https://docs.re.video/api/renderer/renderVideo
-        ffmpegPath: 'ffmpeg',
+        ffmpegPath: './ffmpeg/bin/ffmpeg',
       },
     },
     
