@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "start": "revideo editor --projectFile ./src/project.tsx",
+    "start": "revideo editor --projectFile ./src/project-mask.tsx",
     "render": "tsc && node dist/render.js"
   },
   "dependencies": {
