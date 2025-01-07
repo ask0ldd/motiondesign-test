@@ -10,6 +10,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 function setup3DScene() {
   const threeScene = new THREE.Scene();
+  const renderer = new THREE.WebGLRenderer();
 
   const geometry = new THREE.BoxGeometry( 0.2, 0.2, 0.2 );
   const material = new THREE.MeshNormalMaterial();
@@ -17,15 +18,18 @@ function setup3DScene() {
   const mesh = new THREE.Mesh( geometry, material );
   // threeScene.add(mesh);
 
-  const loadChair = () => {
+  let model : THREE.Group<THREE.Object3DEventMap>;
+
+  const loadModel = () => {
     const loader = new GLTFLoader();
     loader.load('http://localhost:9000/public/models/boombox/BoomBox.gltf', (gltf) => {
       gltf.scene.position.set(0, 0, -10);
       gltf.scene.scale.set(200, 200, 200);
       threeScene.add(gltf.scene);
+      model = gltf.scene
   })}
 
-  loadChair()
+  loadModel()
 
   // Add ambient light
   const ambientLight = new THREE.AmbientLight('white', 0.5); // Adjusted intensity for better effect
@@ -59,6 +63,15 @@ function setup3DScene() {
   mesh.scale.set(1, 1, 1);
   camera.rotation.set(0, 0, 0);
   camera.position.set(0, 0, 0.5);
+
+  const clock = new THREE.Clock();
+  function animate() {
+    const elapsedTime = clock.getElapsedTime();
+    requestAnimationFrame(animate);
+    if(model) model.rotation.y += 3.14/100
+    renderer.render(threeScene, camera);
+  }
+  animate();
 
   return {threeScene, camera, mesh};
 }
@@ -129,7 +142,7 @@ const scene = makeScene2D('scene', function* (view) {
   yield addRotatingCube(threeRef().scene(), 0.1, 0.2, -0.2, 0.1);
   yield addRotatingCube(threeRef().scene(), 0.1, -0.2, -0.2, 0.1);
 
-  yield* waitFor(2);
+  yield* waitFor(7);
 
   /*if (chair) {
     yield* tween(4, value => {
