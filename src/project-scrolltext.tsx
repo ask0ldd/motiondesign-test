@@ -13,6 +13,7 @@ const scene = makeScene2D('scene', function* (view) {
   const text = createRef<Txt>()
   const smallBar = createRef<Rect>()
   const textLayout = createRef<Layout>()
+  const video = createRef<Video>()
 
   const screenWidth = 1080
   const screenHeight = 1920
@@ -22,6 +23,7 @@ const scene = makeScene2D('scene', function* (view) {
   yield view.add(
     <>
       <Video
+        ref={video}
         src={'http://localhost:9000/public/see.mp4'}
         size={['100%', '100%']}
         play={true}
@@ -35,19 +37,19 @@ const scene = makeScene2D('scene', function* (view) {
   );
 
   view.add(
-    <Rect fill="#ffffff" ref={smallBar} position={[-screenWidth / 2 + 32, 0]} width={8} height={250} zIndex={3}></Rect>
+    <Rect fill="#ffffff" ref={smallBar} position={[-screenWidth / 2 + 28, 0]} width={8} height={250} zIndex={3}></Rect>
   )
 
   view.add(
     <Rect fill="#00000000" ref={textRect} padding={[24, 48]} position={[-1000, 0]} zIndex={2} layout>
       <Layout direction="column" ref={textLayout}>
         <Txt
-          fill="#ffffff"
+          fill="#ffffffdd"
           ref={text}
           position={[0, 0]}
           fontFamily="Inter"
-          lineHeight="120%"
-          fontWeight={800}
+          lineHeight="130%"
+          fontWeight={700}
           maxWidth={600}
           grow={0}
           width={600}
@@ -68,9 +70,10 @@ const scene = makeScene2D('scene', function* (view) {
 
   yield* all(
     tween(2, value => {
-      textRect().position.x(map(-1000, (textRect().width() / 2) - screenWidth / 2 + 44, easeInOutCubic(value)));
+      textRect().position.x(map(-1000, (textRect().width() / 2) - screenWidth / 2 + 56, easeInOutCubic(value)));
     }),
     delay(0.5, textRect().fill('rgba(0, 0, 0, 0.5)', 1)),
+    video().scale(1, 0).to(1.25, 2)
     // delay(2, text().fill('rgb(125, 0, 0)', 1))
   )
 
@@ -83,6 +86,8 @@ const scene = makeScene2D('scene', function* (view) {
   );
 
   yield text().restore()
+
+  yield* waitFor(3)
 
   /*view.add(
     <Img
