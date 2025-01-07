@@ -17,6 +17,7 @@
     "@revideo/ui": "0.10.3",
     "@types/three": "^0.172.0",
     "typescript": "5.5.4",
-    "vite": "^4.5"
+    "vite": "^4.5",
+    "vite-plugin-importmap": "^0.1.1"
   }
 }

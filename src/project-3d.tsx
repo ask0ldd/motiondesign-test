@@ -5,6 +5,8 @@ import {delay, easeInOutCubic, linear, makeProject, map, sequence, tween, useSce
 import {Audio, Circle, Img, Layout, makeScene2D, Rect, Txt, Video, Node} from '@revideo/2d';
 import {all, chain, createRef, waitFor} from '@revideo/core';
 import * as THREE from 'three';
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 function setup3DScene() {
   const threeScene = new THREE.Scene();
@@ -13,7 +15,43 @@ function setup3DScene() {
   const material = new THREE.MeshNormalMaterial();
 
   const mesh = new THREE.Mesh( geometry, material );
-  threeScene.add(mesh);
+  // threeScene.add(mesh);
+
+  const loadChair = () => {
+    const loader = new GLTFLoader();
+    loader.load('http://localhost:9000/public/models/boombox/BoomBox.gltf', (gltf) => {
+      gltf.scene.position.set(0, 0, -10);
+      gltf.scene.scale.set(200, 200, 200);
+      threeScene.add(gltf.scene);
+  })}
+
+  loadChair()
+
+  // Add ambient light
+  const ambientLight = new THREE.AmbientLight('white', 0.5); // Adjusted intensity for better effect
+  threeScene.add(ambientLight);
+
+  // Add point lights
+  const pointLight1 = new THREE.PointLight(0xffffff, 100, 50); // White light
+  pointLight1.position.set(5, 5, 5); // Position of the first light
+  threeScene.add(pointLight1);
+
+  const pointLight2 = new THREE.PointLight(0xffffff, 100, 50); // White light
+  pointLight2.position.set(-5, -5, -5); // Position of the second light
+  threeScene.add(pointLight2);
+
+  const pointLight3 = new THREE.PointLight(0xffffff, 100, 50); // White light
+  pointLight3.position.set(5, -5, -5); // Position of the third light
+  threeScene.add(pointLight3);
+
+  // Optional: Add helpers for the lights to visualize their position and range
+  const lightHelper1 = new THREE.PointLightHelper(pointLight1);
+  const lightHelper2 = new THREE.PointLightHelper(pointLight2);
+  const lightHelper3 = new THREE.PointLightHelper(pointLight3);
+
+  threeScene.add(lightHelper1);
+  threeScene.add(lightHelper2);
+  threeScene.add(lightHelper3);
 
   const camera = new THREE.PerspectiveCamera(90);
 
@@ -57,8 +95,8 @@ const scene = makeScene2D('scene', function* (view) {
   yield view.add(
     <>
       <Three
-          width={1920}
-          height={1080}
+          width={1080}
+          height={1920}
           camera={camera}
           scene={threeScene}
           opacity={0}
@@ -68,7 +106,7 @@ const scene = makeScene2D('scene', function* (view) {
     </>
   );
 
-  yield view.add(<Txt fill={"white"} fontFamily={"Lexend"} ref={txtRef} fontSize={80}/>)
+  yield view.add(<Txt fill={"white"} ref={txtRef} fontSize={80} fontFamily="Inter"/>)
 
   yield* chain(
     txtRef().text("3D Test", 1),
@@ -92,6 +130,18 @@ const scene = makeScene2D('scene', function* (view) {
   yield addRotatingCube(threeRef().scene(), 0.1, -0.2, -0.2, 0.1);
 
   yield* waitFor(2);
+
+  /*if (chair) {
+    yield* tween(4, value => {
+      chair.rotation.set(
+        0,
+        linear(value, 0, 2 * Math.PI),
+        0
+      );
+    });
+  } else {
+    console.log("error")
+  }*/
 
 });
 
