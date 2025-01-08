@@ -1,9 +1,10 @@
-import { NodeProps, Rect, Txt, Node, initial, colorSignal, signal } from "@revideo/2d";
+import { NodeProps, Rect, Txt, Node, initial, colorSignal, signal, Layout } from "@revideo/2d";
 import { all, chain, ColorSignal, createRef, easeInOutCubic, easeInSine, range, Reference, Signal, SignalValue, SimpleSignal, Vector2 } from "@revideo/core";
 import '../global.css';
 
 export interface TxtBlockProps extends NodeProps {
     textLines : string[]
+    decorator? : boolean
 }
   
 export class TxtBlock extends Node {
@@ -15,88 +16,102 @@ export class TxtBlock extends Node {
     @colorSignal()
     public declare readonly textColor: ColorSignal<this>;
   
-    @initial(20)
+    @initial(30)
     @signal()
     public declare readonly padding: SimpleSignal<number>;
   
-    private mainContainer = createRef<Rect>();
+    private mainLayout = createRef<Layout>()
+    private textContainer = createRef<Rect>()
     private lineContainers = range(5).map(rec => createRef<Rect>())
+    private decorator = createRef<Rect>()
     private textLinesRefs = range(5).map(line => createRef<Txt>())
     private lineContainersHeight : number
-    private mainContainersHeight : number
-    private mainContainersWidth : number
+    private textContainersHeight : number
+    private textContainersWidth : number
+    private mainLayoutWidth : number
   
-    public constructor(props?: TxtBlockProps) {
+    public constructor(props: TxtBlockProps) {
         super({ ...props, });
     
         this.add(
-            <Rect opacity={0} fill={this.backgroundColor} padding={this.padding} ref={this.mainContainer} direction={'column'} rowGap={10} layout>
-                {props.textLines.map((textLine, index) => 
-                    <Rect ref={this.lineContainers[index]} layout>
-                        <Txt ref={this.textLinesRefs[index]} fill={this.textColor}>{textLine}</Txt>
-                    </Rect>)}
-            </Rect>
+            <Layout ref={this.mainLayout} gap={12} layout>
+                <Rect ref={this.decorator} fill={"#ffffff"} width={12}/>
+                <Rect opacity={1} fill={this.backgroundColor} padding={this.padding} ref={this.textContainer} direction={'column'} rowGap={10} layout>
+                    {props.textLines.map((textLine, index) => 
+                        <Rect ref={this.lineContainers[index]} layout>
+                            <Txt ref={this.textLinesRefs[index]} fontFamily={'Inter'} fontWeight={700} fontSize={40} fill={this.textColor}>{textLine}</Txt>
+                        </Rect>)}
+                </Rect>
+            </Layout>
         );
+        this.mainLayoutWidth = this.mainLayout().width()
     }
 
     public *init(open : boolean = true){
-        this.mainContainer().save()
-        this.lineContainers.map(lc => lc().clip(true))
-        this.lineContainers.forEach(lc => lc().save())
+        this.textContainersHeight = this.textContainer().height()
+        this.textContainersWidth = this.textContainer().width()
+        this.lineContainersHeight = this.lineContainers[0]().height() + 4 // choose the linecontainer with the biggest height instead
+        if(this.decorator) this.decorator().save()
+        this.textContainer().save()
+        this.lineContainers.forEach(lc => {
+            lc().clip(true)
+            lc().save()
+        })
         this.lineContainers.forEach(lc => lc().layout(false))
-        this.mainContainer().restore()
+        this.textContainer().restore()
         this.lineContainers.forEach(lc => lc().restore())
-        this.mainContainer().layout(false)
-        this.lineContainersHeight = this.lineContainers[0]().height()
-        this.mainContainersHeight = this.mainContainer().height()
-        this.mainContainersWidth = this.mainContainer().width()
+        this.textContainer().layout(false)
+        this.mainLayout().layout(false)
+        if(this.decorator) this.decorator().restore()
         if(!open) {
             this.lineContainers.forEach(container => container().height(0))
-            this.mainContainer().height(0)
-            this.mainContainer().width(0)
-            this.mainContainer().padding(0)
+            this.textContainer().height(0)
+            this.textContainer().width(0)
+            this.textContainer().padding(0)
         }
+
     }
 
-    public *lineContainersClose(){
-        yield* chain(...this.lineContainers.map(lc => lc().height(0, 0.35, easeInSine)))
+    public *foldLineContainers(){
+        yield* chain(...this.lineContainers.map(lc => lc().height(0, 0.2, easeInSine)))
     }
 
-    public *lineContainersOpen(){
+    public *unfoldLineContainers(){
         if(this.lineContainersHeight) yield* chain(...this.lineContainers.map(lc => lc().height(this.lineContainersHeight, 0.35, easeInSine)))
     }
 
     public *show() {
-        yield* this.mainContainer().opacity(0, 0).to(1, 0.5, easeInSine);
+        yield* this.textContainer().opacity(0, 0).to(1, 0.5, easeInSine);
     }
     
     public *hide() {
-        yield* this.mainContainer().opacity(1, 0).to(0, 1, easeInSine);
+        yield* this.textContainer().opacity(1, 0).to(0, 1, easeInSine);
     }
 
-    public *snapLeftBorder(viewWidth : number){
-        if(this.mainContainersWidth) this.mainContainer().position.x(- viewWidth/2 + this.mainContainersWidth/2)
+    public *snapLeftBorder(marginLeft : number = 0, viewWidth : number){
+        if(this.mainLayoutWidth) this.mainLayout().position.x(- viewWidth/2 + this.mainLayoutWidth/2 + marginLeft)
     }
   
-    public *closeMainContainer(){
+    public *closeTextContainer(){
         yield* chain(
             all(
-                this.mainContainer().width(10, 1, easeInSine),
-                this.mainContainer().padding(0, 1, easeInSine)
+                this.textContainer().width(10, 0.35, easeInSine),
+                this.textContainer().padding(0, 0.35, easeInSine),
+                this.decorator().position.x(-1000, 0.15, easeInSine)
             ),
-            this.mainContainer().height(0, 0.5, easeInSine),
+            this.textContainer().height(0, 0.25, easeInSine),
         )
     }
 
-    public *openMainContainer(){
-        if(this.mainContainersWidth && this.mainContainersHeight)
+    public *openTextContainer(){
+        if(this.textContainersWidth && this.textContainersHeight)
         yield* chain(
             all(
                 this.show(),
-                this.mainContainer().width(this.mainContainersWidth, 0.75, easeInSine),
-                this.mainContainer().padding(10, 0.75, easeInSine)
+                this.textContainer().width(this.textContainersWidth, 0.75, easeInSine),
+                this.textContainer().padding(10, 0.75, easeInSine)
             ),
-            this.mainContainer().height(this.mainContainersHeight, 0.5, easeInSine),
+            this.textContainer().height(this.textContainersHeight, 0.5, easeInSine),
         )
     }
 }
