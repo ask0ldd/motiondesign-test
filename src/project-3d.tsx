@@ -1,11 +1,10 @@
 import './global.css';
 import {Three} from './components/Three';
-import {delay, easeInOutCubic, linear, makeProject, map, sequence, tween, useScene, Vector2} from '@revideo/core';
+import {delay, easeInOutCubic, linear, loop, makeProject, map, Reference, sequence, tween, useScene, Vector2} from '@revideo/core';
 
-import {Audio, Circle, Img, Layout, makeScene2D, Rect, Txt, Video, Node} from '@revideo/2d';
+import {Audio, Circle, Img, Layout, makeScene2D, Rect, Txt, Video, Node, SVG} from '@revideo/2d';
 import {all, chain, createRef, waitFor} from '@revideo/core';
 import * as THREE from 'three';
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 function setup3DScene() {
@@ -104,6 +103,26 @@ const scene = makeScene2D('scene', function* (view) {
 
   const threeRef = createRef<Three>();
   const txtRef = createRef<Txt>();
+  const starRef = createRef<Img>();
+  const blurredStarRef = createRef<Img>();
+
+  yield view.add(<Img ref={starRef} src={'http://localhost:9000/public/star.svg'}/>)
+
+  yield view.add(<Img ref={blurredStarRef} src={'http://localhost:9000/public/star.svg'}/>)
+  yield blurredStarRef().filters.blur(100, 0);
+
+  /*yield tween(11, (value) => {
+    const scaleValue = Math.abs(Math.cos(value * 2 * Math.PI)); // Scale between 0 and 1
+    starRef().scale(scaleValue);
+  });*/
+
+  yield loop(() => 
+    starRef().scale(0.5, 2).to(1, 2) // Scale down to 0.5 over 1 second, then back to 1 over 1 second
+  );
+
+  yield loop(() => 
+    blurredStarRef().scale(0.5, 2).to(1, 2) // Scale down to 0.5 over 1 second, then back to 1 over 1 second
+  );
 
   yield view.add(
     <>
@@ -119,10 +138,10 @@ const scene = makeScene2D('scene', function* (view) {
     </>
   );
 
-  yield view.add(<Txt fill={"white"} ref={txtRef} fontSize={80} fontFamily="Inter"/>)
+  yield view.add(<Txt fill={"white"} ref={txtRef} fontSize={64} fontFamily="Inter"/>)
 
   yield* chain(
-    txtRef().text("3D Test", 1),
+    txtRef().text("PROJECT3D", 1),
     all(
       txtRef().position.y(-300, 1),
       delay(0.5, threeRef().opacity(1, 0.5))
@@ -139,8 +158,8 @@ const scene = makeScene2D('scene', function* (view) {
 
   yield* waitFor(2);
 
-  yield addRotatingCube(threeRef().scene(), 0.1, 0.2, -0.2, 0.1);
-  yield addRotatingCube(threeRef().scene(), 0.1, -0.2, -0.2, 0.1);
+  /*yield addRotatingCube(threeRef().scene(), 0.1, 0.2, -0.2, 0.1);
+  yield addRotatingCube(threeRef().scene(), 0.1, -0.2, -0.2, 0.1);*/
 
   yield* waitFor(7);
 
