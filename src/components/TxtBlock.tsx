@@ -29,17 +29,20 @@ export class TxtBlock extends Node {
     private textContainersHeight : number
     private textContainersWidth : number
     private mainLayoutWidth : number
+    private isDecorator = false
   
     public constructor(props: TxtBlockProps) {
         super({ ...props, });
     
+        if(props.decorator) this.isDecorator = true
+        
         this.add(
             <Layout ref={this.mainLayout} gap={12} layout>
-                <Rect ref={this.decorator} fill={"#ffffff"} width={12}/>
+                {props.decorator && <Rect ref={this.decorator} fill={"#ffffff"} width={12}/>}
                 <Rect opacity={1} fill={this.backgroundColor} padding={this.padding} ref={this.textContainer} direction={'column'} rowGap={10} layout>
                     {props.textLines.map((textLine, index) => 
                         <Rect ref={this.lineContainers[index]} layout>
-                            <Txt ref={this.textLinesRefs[index]} fontFamily={'Inter'} fontWeight={700} fontSize={40} fill={this.textColor}>{textLine}</Txt>
+                            <Txt ref={this.textLinesRefs[index]} lineHeight={'130%'} fontFamily={'Inter'} fontWeight={700} fontSize={40} fill={this.textColor}>{textLine}</Txt>
                         </Rect>)}
                 </Rect>
             </Layout>
@@ -51,7 +54,7 @@ export class TxtBlock extends Node {
         this.textContainersHeight = this.textContainer().height()
         this.textContainersWidth = this.textContainer().width()
         this.lineContainersHeight = this.lineContainers[0]().height() + 4 // choose the linecontainer with the biggest height instead
-        if(this.decorator) this.decorator().save()
+        if(this.isDecorator) this.decorator().save()
         this.textContainer().save()
         this.lineContainers.forEach(lc => {
             lc().clip(true)
@@ -62,7 +65,7 @@ export class TxtBlock extends Node {
         this.lineContainers.forEach(lc => lc().restore())
         this.textContainer().layout(false)
         this.mainLayout().layout(false)
-        if(this.decorator) this.decorator().restore()
+        if(this.isDecorator) this.decorator().restore()
         if(!open) {
             this.lineContainers.forEach(container => container().height(0))
             this.textContainer().height(0)
@@ -97,7 +100,7 @@ export class TxtBlock extends Node {
             all(
                 this.textContainer().width(10, 0.35, easeInSine),
                 this.textContainer().padding(0, 0.35, easeInSine),
-                this.decorator().position.x(-1000, 0.15, easeInSine)
+                this.isDecorator ? this.decorator().position.x(-1000, 0.15, easeInSine) : void 0
             ),
             this.textContainer().height(0, 0.25, easeInSine),
         )
