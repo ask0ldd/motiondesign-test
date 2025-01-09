@@ -3,6 +3,8 @@ import {delay, Direction, easeInOutCubic, fadeTransition, finishScene, makeProje
 import {Audio, Circle, Img, Layout, makeScene2D, Rect, Txt, Video, Node, Filter} from '@revideo/2d';
 import {all, chain, createRef, waitFor} from '@revideo/core';
 import TxtBlock, { Side } from './components/TxtBlock';
+import { Logo } from './components/Logo';
+import { Watermark } from './components/Watermark';
 
 const lines = [
   "Lorem ipsum dolor sit",
@@ -31,18 +33,21 @@ const scene = makeScene2D('scene', function* (view) {
           size={['100%', '100%']}
           play={true}
         />
-        <Audio
+        {/*<Audio
           src={'http://localhost:9000/public/chill-beat.mp3'}
           play={true}
           time={17.0}
-        />
+        />*/}
       </>,
   );
+
+  view.add(<Logo/>)
+  view.add(<Watermark/>)
 
   yield view.add(<TxtBlock decorator={Side.Left} ref={textBlockRef} textLines={lines}/>)
   view.clip()
   yield* textBlockRef().snapLeftBorder(10, view.width())
-  yield* textBlockRef().init(false)
+  yield* textBlockRef().dissociate(false)
 
   yield* chain(
       textBlockRef().openTextContainer(),
@@ -59,7 +64,7 @@ const scene = makeScene2D('scene', function* (view) {
     textBlockRef().closeTextContainer(),
   )
 
-  yield* waitFor(1)
+  // yield* waitFor(1)
   yield video().pause()
 })
 
@@ -68,19 +73,18 @@ const scene2 = makeScene2D('scene2', function* (view) {
   const textBlockRef = createRef<TxtBlock>()
 
   yield view.add(
-    <>
     <Video
         src={'http://localhost:9000/public/sea3.mp4'}
         size={['100%', '100%']}
         play={true}
     />
-    </>,
   );
+  view.add(<Logo/>)
   yield* slideTransition(Direction.Right)
   yield view.add(<TxtBlock decorator={Side.Right} ref={textBlockRef} textLines={lines}/>)
   view.clip()
   yield* textBlockRef().snapRightBorder(10, view.width())
-  yield* textBlockRef().init(false)
+  yield* textBlockRef().dissociate(false)
 
   yield* chain(
       textBlockRef().openTextContainer(),
