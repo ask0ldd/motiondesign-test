@@ -1,6 +1,6 @@
 import { createRef } from '@revideo/core';
 import '../global.css';
-import { NodeProps, Rect, Txt, Node, initial, colorSignal, signal, Layout } from "@revideo/2d";
+import { NodeProps, Rect, Txt, Node, Layout } from "@revideo/2d";
 
 export interface LogoProps extends NodeProps {
 }

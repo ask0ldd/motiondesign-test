@@ -1,5 +1,5 @@
 import { NodeProps, Rect, Txt, Node, initial, colorSignal, signal, Layout } from "@revideo/2d";
-import { all, chain, ColorSignal, createRef, easeInOutCubic, easeInSine, range, Reference, Signal, SignalValue, SimpleSignal, Vector2 } from "@revideo/core";
+import { all, chain, ColorSignal, createRef, easeInSine, range, SimpleSignal } from "@revideo/core";
 import '../global.css';
 
 export interface TxtBlockProps extends NodeProps {
@@ -16,6 +16,14 @@ export class TxtBlock extends Node {
     @initial('#00000077')
     @colorSignal()
     public declare readonly backgroundColor: ColorSignal<this>;
+
+    @initial('#FF0000')
+    @colorSignal()
+    public declare readonly decoratorColor: ColorSignal<this>;
+
+    @initial(0)
+    @signal()
+    public declare readonly decoratorOpacity: SimpleSignal<number>;
   
     @initial('#ffffff')
     @colorSignal()
@@ -43,41 +51,37 @@ export class TxtBlock extends Node {
 
         this.add(
             <Layout ref={this.mainLayout} gap={12} layout>
-                {props.decorator == "Left" && <Rect ref={this.decorator} opacity={0} fill={"#ff0000"} width={12}/>}
+                {props.decorator == "Left" && <Rect ref={this.decorator} opacity={this.decoratorOpacity} fill={this.decoratorColor} width={12}/>}
                 <Rect opacity={1} fill={this.backgroundColor} padding={this.padding} ref={this.textContainer} direction={'column'} rowGap={10} layout>
                     {props.textLines.map((textLine, index) => 
                         <Rect layout>
                             <Txt ref={this.textLinesRefs[index]} lineHeight={'130%'} fontFamily={'Inter'} fontWeight={700} fontSize={46} fill={this.textColor}>{textLine}</Txt>
                         </Rect>)}
                 </Rect>
-                {props.decorator == "Right" && <Rect ref={this.decorator} opacity={0} fill={"#ff0000"} width={12}/>}
+                {props.decorator == "Right" && <Rect ref={this.decorator} opacity={this.decoratorOpacity} fill={this.decoratorColor} width={12}/>}
             </Layout>
         );
         this.mainLayoutWidth = this.mainLayout().width()
     }
 
-    public *dissociate(open : boolean = true){
+    public *dissociate(isOpen : boolean = true){
         this.textContainersHeight = this.textContainer().height()
         this.textContainersWidth = this.textContainer().width()
-        // this.lineContainersHeight = this.lineContainers[0]().height() + 4 // choose the linecontainer with the biggest height instead
+        // choose the linecontainer with the biggest height instead
         this.lineContainersHeight = (this.textContainer().children()[0] as Rect).height() + 4
         if(this.isDecorator) this.decorator().save()
         this.textContainer().save();
-        // this.lineContainers.forEach(lc => {
         (this.textContainer().children() as Rect[]).forEach(rect => {
             rect.clip(true);
             rect.save()
         });
-        // this.lineContainers.forEach(lc => lc().layout(false))
         (this.textContainer().children() as Rect[]).forEach(rect => rect.layout(false))
         this.textContainer().restore();
-        // this.lineContainers.forEach(lc => lc().restore())
         (this.textContainer().children() as Rect[]).forEach(rect => rect.restore())
         this.textContainer().layout(false)
         this.mainLayout().layout(false)
         if(this.isDecorator) this.decorator().restore()
-        if(!open) {
-            // this.lineContainers.forEach(container => container().height(0))
+        if(!isOpen) {
             (this.textContainer().children() as Rect[]).forEach(rect => rect.height(0))
             this.textContainer().height(0)
             this.textContainer().width(0)
@@ -120,7 +124,6 @@ export class TxtBlock extends Node {
             all(
                 this.textContainer().width(10, 0.35, easeInSine),
                 this.textContainer().padding(0, 0.35, easeInSine),
-                // this.isDecorator ? this.decorator().position.x(-1000, 0.15, easeInSine) : void 0
             ),
             this.textContainer().height(0, 0.25, easeInSine),
         )
