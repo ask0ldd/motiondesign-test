@@ -13,7 +13,7 @@ export enum Side {
 }
   
 export class TxtBlock extends Node {
-    @initial('#00000088')
+    @initial('#00000077')
     @colorSignal()
     public declare readonly backgroundColor: ColorSignal<this>;
   
@@ -43,20 +43,20 @@ export class TxtBlock extends Node {
 
         this.add(
             <Layout ref={this.mainLayout} gap={12} layout>
-                {props.decorator == "Left" && <Rect ref={this.decorator} opacity={0} fill={"#ffffff"} width={12}/>}
+                {props.decorator == "Left" && <Rect ref={this.decorator} opacity={0} fill={"#ff0000"} width={12}/>}
                 <Rect opacity={1} fill={this.backgroundColor} padding={this.padding} ref={this.textContainer} direction={'column'} rowGap={10} layout>
                     {props.textLines.map((textLine, index) => 
                         <Rect layout>
-                            <Txt ref={this.textLinesRefs[index]} lineHeight={'130%'} fontFamily={'Inter'} fontWeight={700} fontSize={40} fill={this.textColor}>{textLine}</Txt>
+                            <Txt ref={this.textLinesRefs[index]} lineHeight={'130%'} fontFamily={'Inter'} fontWeight={700} fontSize={46} fill={this.textColor}>{textLine}</Txt>
                         </Rect>)}
                 </Rect>
-                {props.decorator == "Right" && <Rect ref={this.decorator} opacity={0} fill={"#ffffff"} width={12}/>}
+                {props.decorator == "Right" && <Rect ref={this.decorator} opacity={0} fill={"#ff0000"} width={12}/>}
             </Layout>
         );
         this.mainLayoutWidth = this.mainLayout().width()
     }
 
-    public *init(open : boolean = true){
+    public *dissociate(open : boolean = true){
         this.textContainersHeight = this.textContainer().height()
         this.textContainersWidth = this.textContainer().width()
         // this.lineContainersHeight = this.lineContainers[0]().height() + 4 // choose the linecontainer with the biggest height instead
