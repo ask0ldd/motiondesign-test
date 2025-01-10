@@ -1,6 +1,6 @@
 import './global.css';
-import {delay, Direction, easeInOutCubic, fadeTransition, finishScene, loop, makeProject, map, range, sequence, SignalValue, slideTransition, ThreadGenerator, tween, useScene, useTransition, Vector2} from '@revideo/core';
-import {Audio, Circle, Img, Layout, makeScene2D, Rect, Txt, Video, Node, Filter} from '@revideo/2d';
+import {Direction, easeInCirc, easeInExpo, easeInSine, easeOutSine, makeProject, range, sequence, slideTransition, ThreadGenerator} from '@revideo/core';
+import {Img, makeScene2D, SVG, Video, Node} from '@revideo/2d';
 import {all, chain, createRef, waitFor} from '@revideo/core';
 import TxtBlock, { Side } from './components/TxtBlock';
 import { Logo } from './components/Logo';
@@ -15,6 +15,9 @@ const lines = [
   "quis fringilla nibh fringilla non.",
 ]
 
+const screenWidth = 1080
+const screenHeight = 1920
+
 /**
  * The Revideo scene
  */
@@ -22,10 +25,8 @@ const scene = makeScene2D('scene', function* (view) {
 
   const textBlockRef = createRef<TxtBlock>()
   const video = createRef<Video>()
+  const hashPattern = createRef<Node>()
   const stars = range(4).map(rec => createRef<Star>())
-
-  const screenWidth = 1080
-  const screenHeight = 1920
 
   yield view.add(
       <>
@@ -42,13 +43,28 @@ const scene = makeScene2D('scene', function* (view) {
         />*/}
       </>,
   );
-  stars.forEach(star => view.add(<Star ref={star} size={60} opacity={0.5} position={[getRandomInt(-view.width()/2, view.width()/2), getRandomInt(-view.height()/2, view.height()/2)]}/>))
+
+  yield view.add(
+    <Node ref={hashPattern}>
+      <Img position={[0, 150]} width={300} height={300} opacity={0.15} src={'http://localhost:9000/public/rice.svg'}/>
+      <Img position={[300, -150]} width={300} height={300} opacity={0.15} src={'http://localhost:9000/public/rice.svg'}/>
+      <Img position={[-screenWidth/2+200, screenHeight/2]} width={500} height={500} opacity={0.10} src={'http://localhost:9000/public/rice.svg'}/>
+    </Node>
+  )
+
+  yield all(
+    hashPattern().scale(2, 8, easeOutSine),
+    hashPattern().opacity(0.01, 8, easeOutSine)
+  )
+
+  stars.forEach(star => view.add(<Star ref={star} size={40} opacity={0.5} position={[getRandomInt(-view.width()/2, view.width()/2), getRandomInt(-view.height()/2, view.height()/2)]}/>))
   view.add(<Logo/>)
   view.add(<Watermark/>)
 
-  yield all(
-    yield* stars.map(star => star().randomMove(view))
-  )
+  yield sequence(
+    0.35,
+    ...stars.map(star => star().randomBlinking(view))
+  );
 
   yield view.add(<TxtBlock decorator={Side.Left} ref={textBlockRef} textLines={lines}/>)
   view.clip()
@@ -78,6 +94,7 @@ const scene2 = makeScene2D('scene2', function* (view) {
 
   const textBlockRef = createRef<TxtBlock>()
   const stars = range(4).map(rec => createRef<Star>())
+  const hashPattern = createRef<Node>()
 
   yield view.add(
     <Video
@@ -86,9 +103,23 @@ const scene2 = makeScene2D('scene2', function* (view) {
         play={true}
     />
   );
-  stars.forEach(star => view.add(<Star ref={star} size={60} opacity={0.5} position={[getRandomInt(-view.width()/2, view.width()/2), getRandomInt(-view.height()/2, view.height()/2)]}/>))
+  stars.forEach(star => view.add(<Star ref={star} size={40} opacity={0.5} position={[getRandomInt(-view.width()/2, view.width()/2), getRandomInt(-view.height()/2, view.height()/2)]}/>))
   view.add(<Logo/>)
   view.add(<Watermark/>)
+
+  yield view.add(
+    <Node ref={hashPattern}>
+      <Img position={[0, 150]} width={300} height={300} opacity={0.15} src={'http://localhost:9000/public/rice.svg'}/>
+      <Img position={[300, -150]} width={300} height={300} opacity={0.15} src={'http://localhost:9000/public/rice.svg'}/>
+      <Img position={[-screenWidth/2+200, screenHeight/2]} width={500} height={500} opacity={0.10} src={'http://localhost:9000/public/rice.svg'}/>
+    </Node>
+  )
+
+  yield all(
+    hashPattern().scale(2, 8, easeOutSine),
+    hashPattern().opacity(0.01, 8, easeOutSine)
+  )
+
 
   yield all(
     yield* stars.map(star => star().randomMove(view))
@@ -119,19 +150,3 @@ export default makeProject({
 function getRandomInt(min : number, max : number){
   return Math.floor(Math.random() * ((max-min)+1) + min)
 }
-
-/*function* waitTransition(
-  duration = 0.6,
-  previousOnTop: SignalValue<boolean> = true,
-): ThreadGenerator {
-  const endTransition = useTransition(
-    () => {
-      // do nothing
-    },
-    undefined,
-    previousOnTop,
-  );
-
-  yield* waitFor(duration);
-  endTransition();
-}*/
