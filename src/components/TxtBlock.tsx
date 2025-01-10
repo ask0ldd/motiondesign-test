@@ -25,7 +25,7 @@ export class TxtBlock extends Node {
     @signal()
     public declare readonly decoratorOpacity: SimpleSignal<number>;
   
-    @initial('#ffffff')
+    @initial('#ffffffdd')
     @colorSignal()
     public declare readonly textColor: ColorSignal<this>;
   
@@ -52,10 +52,10 @@ export class TxtBlock extends Node {
         this.add(
             <Layout ref={this.mainLayout} gap={12} layout>
                 {props.decorator == "Left" && <Rect ref={this.decorator} opacity={this.decoratorOpacity} fill={this.decoratorColor} width={12}/>}
-                <Rect opacity={1} fill={this.backgroundColor} padding={this.padding} ref={this.textContainer} direction={'column'} rowGap={10} layout>
+                <Rect opacity={1} fill={this.backgroundColor} padding={this.padding} ref={this.textContainer} direction={'column'} rowGap={8} layout>
                     {props.textLines.map((textLine, index) => 
                         <Rect layout>
-                            <Txt ref={this.textLinesRefs[index]} lineHeight={'130%'} fontFamily={'Inter'} fontWeight={700} fontSize={46} fill={this.textColor}>{textLine}</Txt>
+                            <Txt ref={this.textLinesRefs[index]} lineHeight={'130%'} fontFamily={'Poppins'} fontWeight={800} fontSize={42} fill={this.textColor}>{textLine}</Txt>
                         </Rect>)}
                 </Rect>
                 {props.decorator == "Right" && <Rect ref={this.decorator} opacity={this.decoratorOpacity} fill={this.decoratorColor} width={12}/>}
@@ -68,7 +68,7 @@ export class TxtBlock extends Node {
         this.textContainersHeight = this.textContainer().height()
         this.textContainersWidth = this.textContainer().width()
         // choose the linecontainer with the biggest height instead
-        this.lineContainersHeight = (this.textContainer().children()[0] as Rect).height() + 4
+        this.lineContainersHeight = (this.textContainer().children()[0] as Rect).height() // + 2
         if(this.isDecorator) this.decorator().save()
         this.textContainer().save();
         (this.textContainer().children() as Rect[]).forEach(rect => {
@@ -92,14 +92,14 @@ export class TxtBlock extends Node {
 
     public *foldLineContainers(){
         yield* all(
-            chain(...(this.textContainer().children() as Rect[]).map(rect => rect.height(0, 0.2, easeInSine))),
+            chain(...(this.textContainer().children() as Rect[]).map(rect => rect.height(0, 0.15, easeInSine))),
             // chain(...(this.textContainer().children() as Rect[]).map(rect => rect.position.x(300, 0.2, easeInSine))),
-            chain(...(this.textContainer().children() as Rect[]).map(rect => rect.opacity(0, 0.2, easeInSine))),
+            chain(...(this.textContainer().children() as Rect[]).map(rect => rect.opacity(0, 0.15, easeInSine))),
         )
     }
 
     public *unfoldLineContainers(){
-        if(this.lineContainersHeight) yield* chain(...(this.textContainer().children() as Rect[]).map(rect => rect.height(this.lineContainersHeight, 0.35, easeInSine)))
+        if(this.lineContainersHeight) yield* chain(...(this.textContainer().children() as Rect[]).map(rect => rect.height(this.lineContainersHeight, 0.25, easeInSine)))
         
     }
 
@@ -140,8 +140,8 @@ export class TxtBlock extends Node {
             chain(
             all(
                 this.show(),
-                this.textContainer().width(this.textContainersWidth, 0.75, easeInSine),
-                this.textContainer().padding(10, 0.75, easeInSine),
+                this.textContainer().width(this.textContainersWidth, 0.65, easeInSine),
+                this.textContainer().padding(10, 0.65, easeInSine),
             ),
             this.textContainer().height(this.textContainersHeight, 0.5, easeInSine),
             ),
