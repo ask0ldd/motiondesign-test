@@ -5,10 +5,10 @@ async function render() {
 
   // This is the main function that renders the video
   const file = await renderVideo({
-    projectFile: './src/project.tsx',
+    projectFile: './src/project-component.tsx',
     variables: {username: 'Mike'},
     settings: {
-      outFile: 'test.mp4',
+      // outFile: 'test.mp4',
       outDir: './public',
       logProgress: true,
       ffmpeg: {

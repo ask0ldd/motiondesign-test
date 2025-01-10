@@ -16,7 +16,7 @@ export class Watermark extends Node{
             <Txt fill={"#FFFFFF66"} fontFamily={"Inter"} fontSize={36} ref={this.text}>&#169; Arthus Bertrand / A.F.P.</Txt>
         )
 
-        this.children()[0].position.y(-this.text().height() + 1920/2 - 36)
-        this.children()[0].position.x(-this.text().width()/2 + 1080/2 - 50)
+        this.position.y(-this.text().height() + 1920/2 - 30)
+        this.position.x(-this.text().width()/2 + 1080/2 - 50)
     }
 }
