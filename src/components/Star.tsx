@@ -1,5 +1,5 @@
 import { NodeProps, Rect, Txt, Node, Layout, View2D } from "@revideo/2d";
-import { loop } from "@revideo/core";
+import { delay, loop } from "@revideo/core";
 
 export interface LogoProps extends NodeProps {
     size : number
@@ -24,6 +24,26 @@ export class Star extends Node {
                 const newX = this.getRandomInt(-view.width()/2, view.width()/2);
                 const newY = this.getRandomInt(-view.height()/2, view.height()/2);
                 return this.position([newX, newY], 3);
+            }
+        })
+    }
+
+    /**randomBlinking(view : View2D){
+        yield* loop(() => {
+            if(view.width() && view.height()) {
+                const newX = this.getRandomInt(-view.width()/2, view.width()/2);
+                const newY = this.getRandomInt(-view.height()/2, view.height()/2);
+                return yield* delay(2, this.position([newX, newY]))
+            }
+        })
+    }*/
+
+    *randomBlinking(view : View2D){
+        yield* loop(() => {
+            if(view.width() && view.height()) {
+                const newX = this.getRandomInt(-view.width()/2, view.width()/2);
+                const newY = this.getRandomInt(-view.height()/2, view.height()/2);
+                return delay(1, () => this.position([newX, newY]))
             }
         })
     }
