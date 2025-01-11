@@ -1,5 +1,5 @@
 import './global.css';
-import {Direction, easeInCirc, easeInExpo, easeInSine, easeOutSine, makeProject, range, sequence, slideTransition, ThreadGenerator} from '@revideo/core';
+import {Direction, easeInCirc, easeInExpo, easeInSine, easeOutSine, makeProject, range, sequence, slideTransition, ThreadGenerator, useScene} from '@revideo/core';
 import {Img, makeScene2D, SVG, Video, Node} from '@revideo/2d';
 import {all, chain, createRef, waitFor} from '@revideo/core';
 import TxtBlock, { Side } from './components/TxtBlock';
@@ -28,11 +28,13 @@ const scene = makeScene2D('scene', function* (view) {
   const hashPattern = createRef<Node>()
   const stars = range(4).map(rec => createRef<Star>())
 
+  const name = useScene().variables.get('username', 'new user');
+
   yield view.add(
       <>
         <Video
           ref={video}
-          src={'http://localhost:9000/public/sea.mp4'}
+          src={'http://localhost:9000/public/sea-01.mp4'}
           size={['100%', '100%']}
           play={true}
         />
