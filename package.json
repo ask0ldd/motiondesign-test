@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "scripts": {
     "start": "revideo editor --projectFile ./src/project-component.tsx",
-    "render": "tsc && node dist/render.js"
+    "render": "tsc && node dist/render.js",
+    "crender": "tsc && node dist/customRender.js"
   },
   "dependencies": {
     "@revideo/2d": "0.10.3",

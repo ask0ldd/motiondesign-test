@@ -1,1 +1,1 @@
-npm run render
+node dist/customRender.js "[\"sea-01.mp4\",\"sea3.mp4\"]" "\"chill-beat.mp3\"" "[\"Lorem ipsum dolor sit\",\"amet, consectetur\",\"adipiscing elit.\",\"Sed dapibus orci enim,\",\"quis fringilla nibh fringilla non.\"]"
