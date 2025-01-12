@@ -33,6 +33,8 @@ async function render(videoUrls, AudioUrl, Text) {
   });
 
   console.log(`Rendered video to ${file}`);
+
+  return file
 }
 
 function extractParameters(){
